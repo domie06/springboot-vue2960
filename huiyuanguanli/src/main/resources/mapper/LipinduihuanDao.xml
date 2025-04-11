@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.LipinduihuanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yuangong_id as yuangongId
+        ,a.yonghu_id as yonghuId
+        ,a.lipin_id as lipinId
+        ,a.lipinduihuan_content as lipinduihuanContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.LipinduihuanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,lipin.lipin_name as lipinName
+        ,lipin.lipin_danwei as lipinDanwei
+        ,lipin.lipin_photo as lipinPhoto
+        ,lipin.suoxu_number as suoxuNumber
+        ,lipin.lipin_delete as lipinDelete
+        ,lipin.lipin_content as lipinContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_new_jifen as yonghuNewJifen
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yuangong.yuangong_name as yuangongName
+        ,yuangong.yuangong_phone as yuangongPhone
+        ,yuangong.yuangong_photo as yuangongPhoto
+        ,yuangong.yuangong_email as yuangongEmail
+
+        FROM lipinduihuan  a
+        left JOIN lipin lipin ON a.lipin_id = lipin.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        left JOIN yuangong yuangong ON a.yuangong_id = yuangong.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yuangongId != null and params.yuangongId != ''">
+                and (
+                    a.yuangong_id = #{params.yuangongId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.lipinId != null and params.lipinId != ''">
+                and (
+                    a.lipin_id = #{params.lipinId}
+                )
+            </if>
+            <if test=" params.lipinduihuanContent != '' and params.lipinduihuanContent != null and params.lipinduihuanContent != 'null' ">
+                and a.lipinduihuan_content like CONCAT('%',#{params.lipinduihuanContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断礼品的id不为空 -->
+            <if test=" params.lipinIdNotNull != '' and params.lipinIdNotNull != null and params.lipinIdNotNull != 'null' ">
+                and a.lipin_id IS NOT NULL
+            </if>
+            <if test=" params.lipinName != '' and params.lipinName != null and params.lipinName != 'null' ">
+                and lipin.lipin_name like CONCAT('%',#{params.lipinName},'%')
+            </if>
+            <if test=" params.lipinDanwei != '' and params.lipinDanwei != null and params.lipinDanwei != 'null' ">
+                and lipin.lipin_danwei like CONCAT('%',#{params.lipinDanwei},'%')
+            </if>
+            <if test="params.suoxuNumberStart != null  and params.suoxuNumberStart != '' ">
+                <![CDATA[  and lipin.suoxu_number >= #{params.suoxuNumberStart}   ]]>
+            </if>
+            <if test="params.suoxuNumberEnd != null  and params.suoxuNumberEnd != '' ">
+                <![CDATA[  and lipin.suoxu_number <= #{params.suoxuNumberEnd}   ]]>
+            </if>
+            <if test="params.suoxuNumber != null  and params.suoxuNumber != '' ">
+                and lipin.suoxu_number = #{params.suoxuNumber}
+            </if>
+            <if test="params.lipinDeleteStart != null  and params.lipinDeleteStart != '' ">
+                <![CDATA[  and lipin.lipin_delete >= #{params.lipinDeleteStart}   ]]>
+            </if>
+            <if test="params.lipinDeleteEnd != null  and params.lipinDeleteEnd != '' ">
+                <![CDATA[  and lipin.lipin_delete <= #{params.lipinDeleteEnd}   ]]>
+            </if>
+            <if test="params.lipinDelete != null  and params.lipinDelete != '' ">
+                and lipin.lipin_delete = #{params.lipinDelete}
+            </if>
+            <if test=" params.lipinContent != '' and params.lipinContent != null and params.lipinContent != 'null' ">
+                and lipin.lipin_content like CONCAT('%',#{params.lipinContent},'%')
+            </if>
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test="params.yonghuNewJifenStart != null ">
+                <![CDATA[  and yonghu.yonghu_new_jifen >= #{params.yonghuNewJifenStart}   ]]>
+            </if>
+            <if test="params.yonghuNewJifenEnd != null ">
+                <![CDATA[  and yonghu.yonghu_new_jifen <= #{params.yonghuNewJifenEnd}   ]]>
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+                <!-- 判断员工的id不为空 -->
+            <if test=" params.yuangongIdNotNull != '' and params.yuangongIdNotNull != null and params.yuangongIdNotNull != 'null' ">
+                and a.yuangong_id IS NOT NULL
+            </if>
+            <if test="params.shangdianId != null  and params.shangdianId != ''">
+                and yuangong.shangdian_id = #{params.shangdianId}
+            </if>
+            <if test=" params.yuangongName != '' and params.yuangongName != null and params.yuangongName != 'null' ">
+                and yuangong.yuangong_name like CONCAT('%',#{params.yuangongName},'%')
+            </if>
+            <if test=" params.yuangongPhone != '' and params.yuangongPhone != null and params.yuangongPhone != 'null' ">
+                and yuangong.yuangong_phone like CONCAT('%',#{params.yuangongPhone},'%')
+            </if>
+            <if test=" params.yuangongEmail != '' and params.yuangongEmail != null and params.yuangongEmail != 'null' ">
+                and yuangong.yuangong_email like CONCAT('%',#{params.yuangongEmail},'%')
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
